@@ -3,16 +3,20 @@
 # Contributor: thn81 <root@scrat>
 
 # vercheck-pkgbuild: auto
-# vercheck-ubuntu: name=${pkgbase%-*}, repo=utopic
+# vercheck-ubuntu: name=${pkgbase%-*}, repo=vivid
 # vercheck-archlinux: name=${pkgbase%-*}, repo=extra, arch=x86_64
-# vercheck-gnome: name=${pkgbase%-*}, majorver=3.14
+# vercheck-gnome: name=${pkgbase%-*}, majorver=3.16
 # vercheck-ppa: name=${pkgbase%-*}, url=ppa:gnome3-team/gnome3-staging
+
+_use_ppa=true
 
 pkgbase=nautilus-ubuntu
 pkgname=(nautilus-ubuntu libnautilus-extension-ubuntu)
-_ubuntu_rel=0ubuntu4
-pkgver=3.14.2
-pkgrel=3
+#_ubuntu_rel=0ubuntu4
+#_ubuntu_ver=3.14.2
+_ppa_rel=0ubuntu1~vivid1
+pkgver=3.16.1
+pkgrel=2
 pkgdesc="GNOME and Unity file manager"
 arch=(i686 x86_64)
 license=(GPL)
@@ -22,10 +26,15 @@ makedepends=(intltool gobject-introspection python python2)
 url="http://www.gnome.org"
 options=(!emptydirs)
 install=nautilus.install
-source=("http://ftp.gnome.org/pub/gnome/sources/nautilus/${pkgver%.*}/nautilus-${pkgver}.tar.xz"
-        "https://launchpad.net/ubuntu/+archive/primary/+files/nautilus_${_ubuntu_ver:-${pkgver}}-${_ubuntu_rel}.debian.tar.xz")
-sha512sums=('9d07878fc2474c7444fb7c573ce1886514b82ecb386365e608de81473184791daf17875b7ea471a7bef2c84df0d6d06b207223c7b5ec64d195e46865440ceff6'
-            'b48dad4ad48983ff4e39bb54db7d46e745d70579af79fd6b76ef84b7e9def0c229c7ad7d58a2f61f8bf0bcde73719d43ef70163551250758b817d11c33d5ccec')
+source=("http://ftp.gnome.org/pub/gnome/sources/nautilus/${pkgver%.*}/nautilus-${pkgver}.tar.xz")
+if [[ "${_use_ppa}" == "true" ]]; then
+    source+=("https://launchpad.net/~gnome3-team/+archive/ubuntu/gnome3-staging/+files/nautilus_${_ppa_ver:-${pkgver}}-${_ppa_rel}.debian.tar.xz")
+else
+    source+=("https://launchpad.net/ubuntu/+archive/primary/+files/nautilus_${_ubuntu_ver:-${pkgver}}-${_ubuntu_rel}.debian.tar.xz")
+fi
+
+sha512sums=('ae7356015aefd228736bff61d30a784f2dc9cd7982292716ccd47164614c836085bb11f9cec97057a0c77568a37448294687aff99175b6af0eee3c1cb26b2084'
+            '89860e2ba7177034c70b2d83470736a66fc76518d288fdedb4cb86700c98d5ab43af24a09aeeddc627363a79c6d077ae5a438fb883762d2c228e4a3471c2e030')
 
 prepare() {
   cd "${pkgname%-*}-${pkgver}"
@@ -33,9 +42,9 @@ prepare() {
   # Apply Ubuntu's patches
 
   # Disable patches
-    sed -i -e '/15_use-ubuntu-help.patch/d' \
-           -e '/08_clean_session_capplet.patch/d' \
-           ../debian/patches/series
+  sed -i -e '/15_use-ubuntu-help.patch/d' \
+         -e '/08_clean_session_capplet.patch/d' \
+         ../debian/patches/series
 
   for i in $(grep -v '#' ../debian/patches/series); do
     msg "Applying ${i} ..."
