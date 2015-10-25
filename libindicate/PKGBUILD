@@ -9,7 +9,7 @@
 pkgbase=libindicate
 pkgname=(libindicate libindicate-gtk2 libindicate-gtk3)
 pkgver=12.10.1
-pkgrel=1
+pkgrel=2
 epoch=1
 pkgdesc="Library for raising indicators via DBus"
 arch=(i686 x86_64)
@@ -34,8 +34,12 @@ prepare() {
 
 build() {
   cd "${pkgbase}-${pkgver}"
-
+  
   export CFLAGS+=" -Wno-error=deprecated-declarations"
+
+  export MCS=/usr/bin/mcs
+  export CSC=/usr/bin/mcs
+  export GMCS=/usr/bin/mcs
 
   autoreconf -vfi
 
